@@ -1,3 +1,27 @@
+# cur.execute("""CREATE TABLE worker(
+#                     Name text,
+#                     age integer,
+#                     contact integer,
+#                     shift text,
+#                     password text,
+#                     Money integer)""")
+#     cur.execute("""CREATE TABLE manager(
+#                     Name text,
+#                     age integer,
+#                     contact integer,
+#                     shift text,
+#                     password text)""")
+#     cur.execute("""CREATE TABLE inv_items(
+#                     Name text,
+#                     Quantity integer,
+#                     ptpp integer,
+#                     low integer,
+#                     price integer)""")
+#     cur.execute("""CREATE TABLE food_items(
+#                     Name text,
+#                     ingredients text,
+#                     price integer)""")
+
 class WorkerData ():
     workerData = [["name1", '******', '200'],
                   ['name 2', '******', '200'],

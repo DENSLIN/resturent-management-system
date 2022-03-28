@@ -2,6 +2,7 @@ from ..pages.page import *
 from ..data import Data
 from TkinterSidebar.scrollbar import *
 import tkinter as tk
+import sqlite3 as sq3
 
 
 """
@@ -33,17 +34,30 @@ class UpdateWorkerPage(Page):
 
         buttonEdit = {}
         buttondelete = {}
-        workerData = Data.WorkerData.workerData
+        database3 = sq3.connect('TkinterSidebar/data/hotel_database.db')
+        cur3 = database3.cursor()
+
+        cur3.execute("SELECT Name,shift,contact,Money FROM worker")
+        workerData = cur3.fetchall()
+        database3.commit()
+        database3.close()
         UpdateWorkerFrame = Frame(self,width=1000,height=1000,bg="grey")
         UpdateWorkerFrame.pack()
         Label(UpdateWorkerFrame, text='List of workers', font="bold",bg="grey").grid(column=0, row=0, padx=25, pady=20)
         Label(UpdateWorkerFrame, text='Name', font="bold",bg="grey").grid(column=0, row=1, padx=10, pady=10)
-        Label(UpdateWorkerFrame, text='passwords', font="bold",bg="grey").grid(column=1, row=1, padx=10, pady=10)
-        Label(UpdateWorkerFrame, text='Money', font="bold",bg="grey").grid(column=2, row=1, padx=10, pady=10)
+        Label(UpdateWorkerFrame, text='Shift', font="bold",bg="grey").grid(column=1, row=1, padx=10, pady=10)
+        Label(UpdateWorkerFrame, text='Contact', font="bold",bg="grey").grid(column=2, row=1, padx=10, pady=10)
+        Label(UpdateWorkerFrame, text='Money', font="bold",bg="grey").grid(column=3, row=1, padx=10, pady=10)
         count = 2
 
         def deleteworker(name):
-            print(name + "deleted")
+            database = sq3.connect('TkinterSidebar/data/hotel_database.db')
+            cur2 = database.cursor()
+            deleteworkername=[(name)]
+            cur2.executemany("DELETE FROM worker Where Name=?", (deleteworkername,))
+            database.commit()
+            database.close()
+            print(name + " deleted")
 
             UpdateWorkerPage(parent)
 
@@ -75,30 +89,47 @@ class UpdateWorkerPage(Page):
             Name = Entry(AddNewPage, width=30)
             Name.grid(column=1, row=1, padx=25, pady=20)
             Name.delete(0, END)
-            Label(AddNewPage, text='Password  :- ').grid(column=0, row=2, padx=25, pady=20)
+            Label(AddNewPage, text='Age :- ').grid(column=0, row=2, padx=25, pady=20)
+            Age = Entry(AddNewPage, width=30)
+            Age.grid(column=1, row=2, padx=25, pady=20)
+            Age.delete(0, END)
+            Label(AddNewPage, text='Contact :- ').grid(column=0, row=3, padx=25, pady=20)
+            Contact = Entry(AddNewPage, width=30)
+            Contact.grid(column=1, row=3, padx=25, pady=20)
+            Contact.delete(0, END)
+            Label(AddNewPage, text='Shift :- ').grid(column=0, row=4, padx=25, pady=20)
+            Shift = Entry(AddNewPage, width=30)
+            Shift.grid(column=1, row=4, padx=25, pady=20)
+            Shift.delete(0, END)
+            Label(AddNewPage, text='Password  :- ').grid(column=0, row=5, padx=25, pady=20)
             Pswd = Entry(AddNewPage, width=30,show="*")
-            Pswd.grid(column=1, row=2, padx=25, pady=20)
+            Pswd.grid(column=1, row=5, padx=25, pady=20)
             def update():
-                name = Name.get()
-                workerData[1][1]=name
-                print(name)
+                database1 = sq3.connect('TkinterSidebar/data/hotel_database.db')
+                cur1 = database1.cursor()
+                new_employe = [(Name.get(), Age.get(),Contact.get(),Shift.get(),Pswd.get(),0)]
+                cur1.executemany("INSERT INTO worker VALUES(?,?,?,?,?,?)", new_employe)
+                database1.commit()
+                database1.close()
+                print(Name)
                 AddNewPage.destroy()
                 UpdateWorkerPage(parent)
-            Button(AddNewPage,width=50,text="Add Employee",command=lambda:update()).grid(column=0,row =3,pady=20,columnspan=2)
+            Button(AddNewPage,width=50,text="Add Employee",command=lambda:update()).grid(column=0,row =6,pady=20,columnspan=2)
             Pswd.delete(0, END)
             AddNewPage.mainloop()
         for data in workerData:
             Label(UpdateWorkerFrame, text=data[0],bg="grey").grid(column=0, row=count, padx=5, pady=5)
-            Label(UpdateWorkerFrame, text="******",bg="grey").grid(column=1, row=count, padx=5, pady=5)
+            Label(UpdateWorkerFrame, text=data[1],bg="grey").grid(column=1, row=count, padx=5, pady=5)
             Label(UpdateWorkerFrame, text=data[2],bg="grey").grid(column=2, row=count, padx=5, pady=5)
+            Label(UpdateWorkerFrame, text=data[3],bg="grey").grid(column=3, row=count, padx=5, pady=5)
 
             def func(x=data[0]):
                 return editworker(x)
-            buttonEdit[data[0]] = Button(UpdateWorkerFrame, text='edit', command=func).grid(column=3, row=count)
+            buttonEdit[data[0]] = Button(UpdateWorkerFrame, text='edit', command=func).grid(column=4, row=count)
 
             def func(x=data[0]):
                 return deleteworker(x)
-            buttondelete[data[0]] = Button(UpdateWorkerFrame, text='delete', command=func).grid(column=4, row=count)
+            buttondelete[data[0]] = Button(UpdateWorkerFrame, text='delete', command=func).grid(column=5, row=count)
 
             count += 1
         Button(UpdateWorkerFrame,text="Add New Employee", width=25, command=lambda: AddNewWorker()).grid(column=0,row=count,columnspan=3)
