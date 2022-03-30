@@ -268,18 +268,29 @@ class UpdateManagerPage(Page):
 
         buttonEdit = {}
         buttondelete = {}
-        ManagerData = Data.WorkerData.ManagerData
+        database3 = sq3.connect('TkinterSidebar/data/hotel_database.db')
+        cur3 = database3.cursor()
+
+        cur3.execute("SELECT Name,contact,shift FROM manager")
+        ManagerData = cur3.fetchall()
+        database3.commit()
+        database3.close()
         UpdateManagerFrame = Frame(self,width=1000,height=1000,bg="grey")
         UpdateManagerFrame.pack()
-        Label(UpdateManagerFrame, text='List of workers', font="bold",bg="grey").grid(column=0, row=0, padx=25, pady=20)
+        Label(UpdateManagerFrame, text='List of managers', font="bold",bg="grey").grid(column=0, row=0, padx=25, pady=20)
         Label(UpdateManagerFrame, text='Name', font="bold",bg="grey").grid(column=0, row=1, padx=10, pady=10)
-        Label(UpdateManagerFrame, text='passwords', font="bold",bg="grey").grid(column=1, row=1, padx=10, pady=10)
-        Label(UpdateManagerFrame, text='Money', font="bold",bg="grey").grid(column=2, row=1, padx=10, pady=10)
+        Label(UpdateManagerFrame, text='Contact', font="bold",bg="grey").grid(column=1, row=1, padx=10, pady=10)
+        Label(UpdateManagerFrame, text='Shift', font="bold",bg="grey").grid(column=2, row=1, padx=10, pady=10)
         count = 2
 
-        def deletemanager(id):
-            print(ManagerData[id][0])
-            ManagerData[id][0]="Null"
+        def deletemanager(name):
+            print("delete" + str(name))
+            database = sq3.connect('TkinterSidebar/data/hotel_database.db')
+            cur2 = database.cursor()
+            deleteworkername=[(name)]
+            cur2.executemany("DELETE FROM manager Where Name=?", (deleteworkername,))
+            database.commit()
+            database.close()
             UpdateManagerPage(parent)
 
         def editmanager(name):
@@ -303,6 +314,7 @@ class UpdateManagerPage(Page):
             editWorkerDetails.mainloop()
 
         def AddNewManager():
+
             print("new Manager")
             AddNewPage=Tk()
             Label(AddNewPage, text='Edit Details ', font="bold").grid(column=0, row=0, padx=25, pady=20)
@@ -310,37 +322,52 @@ class UpdateManagerPage(Page):
             Name = Entry(AddNewPage, width=30)
             Name.grid(column=1, row=1, padx=25, pady=20)
             Name.delete(0, END)
-            Label(AddNewPage, text='Password  :- ').grid(column=0, row=2, padx=25, pady=20)
+            Label(AddNewPage, text='Age :- ').grid(column=0, row=2, padx=25, pady=20)
+            age = Entry(AddNewPage, width=30)
+            age.grid(column=1, row=2, padx=25, pady=20)
+            age.delete(0, END)
+            Label(AddNewPage, text='contact :- ').grid(column=0, row=3, padx=25, pady=20)
+            contact = Entry(AddNewPage, width=30)
+            contact.grid(column=1, row=3, padx=25, pady=20)
+            contact.delete(0, END)
+            Label(AddNewPage, text='shift :- ').grid(column=0, row=4, padx=25, pady=20)
+            shift = Entry(AddNewPage, width=30)
+            shift.grid(column=1, row=4, padx=25, pady=20)
+            shift.delete(0, END)
+            Label(AddNewPage, text='Password  :- ').grid(column=0, row=5, padx=25, pady=20)
             Pswd = Entry(AddNewPage, width=30,show="*")
-            Pswd.grid(column=1, row=2, padx=25, pady=20)
+            Pswd.grid(column=1, row=5, padx=25, pady=20)
             def update():
-                name = Name.get()
-                ManagerData[1][1]=name
-                print(name)
+                
+                database1 = sq3.connect('TkinterSidebar/data/hotel_database.db')
+                cur1 = database1.cursor()
+                new_employe = [(Name.get(), age.get(),contact.get(),shift.get(),Pswd.get())]
+                cur1.executemany("INSERT INTO manager VALUES(?,?,?,?,?)", new_employe)
+                database1.commit()
+                database1.close()
+                print(Name)
                 AddNewPage.destroy()
                 UpdateManagerPage(parent)
-            Button(AddNewPage,width=50,text="Add Manager",command=lambda:update()).grid(column=0,row =3,pady=20,columnspan=2)
+            Button(AddNewPage,width=50,text="Add Manager",command=lambda:update()).grid(column=0,row =6,pady=20,columnspan=2)
             Pswd.delete(0, END)
             AddNewPage.mainloop()
+
+
         for data in ManagerData:
-            if data[0]=="Null":
-                continue
             Label(UpdateManagerFrame, text=data[0],bg="grey").grid(column=0, row=count, padx=5, pady=5)
-            Label(UpdateManagerFrame, text="******",bg="grey").grid(column=1, row=count, padx=5, pady=5)
+            Label(UpdateManagerFrame, text=data[1],bg="grey").grid(column=1, row=count, padx=5, pady=5)
             Label(UpdateManagerFrame, text=data[2],bg="grey").grid(column=2, row=count, padx=5, pady=5)
 
             def func(x=count-2):
-                return editmanager(x)
+                return editmanager(data[0])
             buttonEdit[data[0]] = Button(UpdateManagerFrame, text='edit', command=func).grid(column=3, row=count)
 
             def func(x=count-2):
-                return deletemanager(x)
+                return deletemanager(data[0])
             buttondelete[data[0]] = Button(UpdateManagerFrame, text='delete', command=func).grid(column=4, row=count)
 
             count += 1
         Button(UpdateManagerFrame,text="Add New Manager", width=25, command=lambda: AddNewManager()).grid(column=0,row=count,columnspan=3)
-
-
 
 
 class SettingsPage(Page):
